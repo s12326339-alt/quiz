@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>كويز تحديد التخصص المناسب</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal&display=swap');
+  :root {
+    --bg-dark: #0b0c10;
+    --panel-bg: #1f2833;
+    --accent1: #66fcf1;
+    --accent2: #45a29e;
+    --text-light: #c5c6c7;
+    --text-bright: #ffffff;
+  }
+  * {
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif;
+  }
+  body {
+  margin: 0;
+  min-height: 100vh;
+  background-image: 
+    linear-gradient(135deg, rgba(27, 38, 44, 0.7) 0%, rgba(11, 12, 16, 0.7) 100%),
+    url('image/program.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+  color: var(--text-light);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+  .container {
+    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 24px 30px;
+    max-width: 720px;
+    width: 100%;
+    box-shadow: 0 0 15px var(--accent2);
+  }
+  h1 {
+    color: var(--accent1);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .question {
+    margin-bottom: 20px;
+    background: #16222a;
+    border-radius: 10px;
+    padding: 15px 18px;
+  }
+  .question strong {
+    font-size: 1.15rem;
+    color: var(--accent1);
+  }
+  .options {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  label.option {
+    background: #0b1218;
+    border: 2px solid transparent;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+  }
+  label.option:hover {
+    border-color: var(--accent2);
+    background: #0e1e26;
+  }
+  input[type="radio"] {
+    accent-color: var(--accent1);
+    margin-left: 12px;
+  }
+  .controls {
+    margin-top: 18px;
+    text-align: center;
+  }
+  button {
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    border: none;
+    color: var(--bg-dark);
+    padding: 12px 26px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background: var(--accent2);
+    color: var(--text-bright);
+  }
+  .result {
+    margin-top: 26px;
+    background: #10171f;
+    border-radius: 14px;
+    padding: 18px 22px;
+    font-size: 1.2rem;
+    color: var(--accent1);
+    text-align: center;
+    font-weight: 700;
+  }
+  @media (max-width: 600px) {
+    .container {
+      padding: 16px 18px;
+    }
+    h1 {
+      font-size: 1.4rem;
+    }
+    .question strong {
+      font-size: 1.05rem;
+    }
+    button {
+      font-size: 1rem;
+      padding: 10px 18px;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="container" role="main" aria-labelledby="quiz-title">
+    <h1 id="quiz-title">كويز: ما التخصص المناسب لك؟</h1>
+    <form id="quizForm" aria-describedby="instructions">
+      <p id="instructions" style="text-align:center; color:var(--accent2); margin-bottom:20px;">
+        أجب على الأسئلة التالية واختر الإجابة الأقرب لك.<br>
+        عند الانتهاء اضغط "احسب النتيجة" لمعرفة تخصصك الأنسب.
+      </p>
+    </form>
+    <div class="controls">
+      <button type="submit" form="quizForm">احسب النتيجة</button>
+    </div>
+    <section id="result" class="result" aria-live="polite" role="region" tabindex="0"></section>
+  </main>
+
+<script>
+  const questions = [
+    {
+      q: "ما الذي تستمتع به أكثر؟",
+      options: [
+        { text: "فهم النظريات والخوارزميات", scores: { cs: 3, cs_job: 1, cyber: 0, mis: 0 } },
+        { text: "بناء تطبيقات عملية للسوق", scores: { cs: 1, cs_job: 3, cyber: 0, mis: 0 } },
+        { text: "حماية الأنظمة والكشف عن التهديدات", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "تنظيم وتحليل البيانات لدعم الإدارة", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "أي أسلوب عمل تفضله؟",
+      options: [
+        { text: "التركيز على البحث وحل المشاكل", scores: { cs: 3, cs_job: 0, cyber: 0, mis: 0 } },
+        { text: "العمل الجماعي وإطلاق الميزات بسرعة", scores: { cs: 0, cs_job: 3, cyber: 1, mis: 1 } },
+        { text: "الاستجابة السريعة للحوادث الأمنية", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "إدارة المشاريع والعمليات التنظيمية", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "ماذا تود أن تتعلم أكثر؟",
+      options: [
+        { text: "هياكل بيانات ونظريات الحوسبة", scores: { cs: 3, cs_job: 1, cyber: 0, mis: 0 } },
+        { text: "تطوير تطبيقات وبرمجيات عملية", scores: { cs: 1, cs_job: 3, cyber: 0, mis: 0 } },
+        { text: "أدوات اختبار الاختراق وتحليل الشبكات", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "أنظمة قواعد البيانات ونظم ERP", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "أي مشروع ترغب بالعمل عليه؟",
+      options: [
+        { text: "بحث في الخوارزميات وتحسين الأداء", scores: { cs: 3, cs_job: 1, cyber: 0, mis: 0 } },
+        { text: "بناء تطبيق ويب يستخدمه آلاف المستخدمين", scores: { cs: 1, cs_job: 3, cyber: 0, mis: 0 } },
+        { text: "تصميم نظام كشف اختراق IDS", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "إنشاء نظام معلومات لإدارة الموارد", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "كيف تتعامل مع ضغط العمل والمواعيد؟",
+      options: [
+        { text: "أفضل بيئة منظمة وبطيئة نسبياً", scores: { cs: 2, cs_job: 0, cyber: 0, mis: 1 } },
+        { text: "أعمل جيداً مع ضغط التسليم والمشاريع العملية", scores: { cs: 0, cs_job: 3, cyber: 1, mis: 1 } },
+        { text: "أتأقلم مع الحوادث الأمنية السريعة", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "أفضل العمل بإجراءات واضحة ومتطلبات دقيقة", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "أي مادة دراسية تفضل؟",
+      options: [
+        { text: "الخوارزميات ونظرية الحوسبة", scores: { cs: 3, cs_job: 1, cyber: 0, mis: 0 } },
+        { text: "هياكل البيانات وتطوير البرمجيات", scores: { cs: 1, cs_job: 3, cyber: 0, mis: 0 } },
+        { text: "شبكات وأنظمة تشغيل وأمن", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "نظم معلومات إدارية وقواعد بيانات", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "ما الأداة التي تفضل استخدامها؟",
+      options: [
+        { text: "بيئات تطوير ومصححات برمجية", scores: { cs: 2, cs_job: 1, cyber: 0, mis: 0 } },
+        { text: "Git وCI/CD وأطر عمل حديثة", scores: { cs: 1, cs_job: 3, cyber: 0, mis: 0 } },
+        { text: "أدوات فحص الثغرات وأنظمة مراقبة", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "Excel ونظم قواعد بيانات متقدمة", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "كيف تصف نفسك؟",
+      options: [
+        { text: "محلل ومهتم بالرياضيات", scores: { cs: 3, cs_job: 1, cyber: 0, mis: 0 } },
+        { text: "عملي ومهتم بالبناء والتطوير", scores: { cs: 1, cs_job: 3, cyber: 0, mis: 0 } },
+        { text: "حذر وشغوف بالأمن", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "منظم ومرتبط بالأعمال", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    },
+    {
+      q: "ما هو هدفك بعد التخرج؟",
+      options: [
+        { text: "البحث والتطوير النظري", scores: { cs: 3, cs_job: 1, cyber: 0, mis: 0 } },
+        { text: "العمل في شركات البرمجيات الكبرى", scores: { cs: 1, cs_job: 3, cyber: 0, mis: 0 } },
+        { text: "الانضمام لفريق أمن المعلومات", scores: { cs: 0, cs_job: 0, cyber: 3, mis: 0 } },
+        { text: "العمل في الإدارة وتحليل الأنظمة", scores: { cs: 0, cs_job: 0, cyber: 0, mis: 3 } },
+      ]
+    }
+  ];
+
+  function shuffleArray(arr) {
+    let array = arr.slice();
+    for (let i = array.length -1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i +1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  const form = document.getElementById('quizForm');
+  const resultArea = document.getElementById('result');
+
+  function createQuestion(index, question) {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `<strong>السؤال ${index + 1}: ${question.q}</strong>`;
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'options';
+
+    const shuffledOptions = shuffleArray(question.options);
+
+    shuffledOptions.forEach((opt, i) => {
+      const label = document.createElement('label');
+      label.className = 'option';
+      label.htmlFor = `q${index}_opt${i}`;
+      label.innerHTML = `<input type="radio" id="q${index}_opt${i}" name="q${index}" value="${i}" required> ${opt.text}`;
+      optionsDiv.appendChild(label);
+    });
+
+    div.appendChild(optionsDiv);
+    return div;
+  }
+
+  questions.forEach((q, i) => {
+    form.appendChild(createQuestion(i, q));
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    let totals = { cs: 0, cs_job: 0, cyber: 0, mis: 0 };
+    for (let i = 0; i < questions.length; i++) {
+      const val = form[`q${i}`].value;
+      const opt = questions[i].options[val];
+      for (const key in opt.scores) {
+        totals[key] += opt.scores[key];
+      }
+    }
+    const maxScore = Math.max(...Object.values(totals));
+    const topFields = Object.keys(totals).filter(k => totals[k] === maxScore);
+
+    if (topFields.length === 1) {
+      const labels = {
+        cs: "علم الحاسوب",
+        cap: "علم الحاسوب - سوق العمل",
+        cyber: "الأمن السيبراني",
+        mis: "أنظمة المعلومات الإدارية"
+      };
+      resultArea.textContent = `التخصص المناسب لك هو: ${labels[topFields[0]]}`;
+    } else {
+      resultArea.textContent = `أنت مناسب لعدة تخصصات: ${topFields.map(f => {
+        return {
+          cs: "علم الحاسوب",
+          cap: "علم الحاسوب - سوق العمل",
+          cyber: "الأمن السيبراني",
+          mis: "أنظمة المعلومات الإدارية"
+        }[f];
+      }).join(' ، ')}.`;
+    }
+    resultArea.focus();
+  });
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
